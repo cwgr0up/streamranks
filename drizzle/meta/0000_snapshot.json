@@ -1,0 +1,934 @@
+{
+  "id": "d25aea78-a22f-4a87-91cb-f7ad89adf488",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.achievements": {
+      "name": "achievements",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(128)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "criteria": {
+          "name": "criteria",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "achievements_code_uq": {
+          "name": "achievements_code_uq",
+          "columns": [
+            {
+              "expression": "code",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "achievements_code_unique": {
+          "name": "achievements_code_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "code"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.daily_rankings": {
+      "name": "daily_rankings",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "platform_id": {
+          "name": "platform_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "streamer_id": {
+          "name": "streamer_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rank_date": {
+          "name": "rank_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rank": {
+          "name": "rank",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "score": {
+          "name": "score",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "followers": {
+          "name": "followers",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "daily_rankings_unique": {
+          "name": "daily_rankings_unique",
+          "columns": [
+            {
+              "expression": "platform_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "streamer_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "rank_date",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "daily_rankings_date_idx": {
+          "name": "daily_rankings_date_idx",
+          "columns": [
+            {
+              "expression": "rank_date",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "daily_rankings_platform_id_platforms_id_fk": {
+          "name": "daily_rankings_platform_id_platforms_id_fk",
+          "tableFrom": "daily_rankings",
+          "tableTo": "platforms",
+          "columnsFrom": [
+            "platform_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "daily_rankings_streamer_id_streamers_id_fk": {
+          "name": "daily_rankings_streamer_id_streamers_id_fk",
+          "tableFrom": "daily_rankings",
+          "tableTo": "streamers",
+          "columnsFrom": [
+            "streamer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.platforms": {
+      "name": "platforms",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(128)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "website_url": {
+          "name": "website_url",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "platforms_slug_uq": {
+          "name": "platforms_slug_uq",
+          "columns": [
+            {
+              "expression": "slug",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "platforms_slug_unique": {
+          "name": "platforms_slug_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "slug"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.rank_deltas": {
+      "name": "rank_deltas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "platform_id": {
+          "name": "platform_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "streamer_id": {
+          "name": "streamer_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rank_date": {
+          "name": "rank_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "previous_rank": {
+          "name": "previous_rank",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "current_rank": {
+          "name": "current_rank",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "delta": {
+          "name": "delta",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "rank_deltas_unique": {
+          "name": "rank_deltas_unique",
+          "columns": [
+            {
+              "expression": "platform_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "streamer_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "rank_date",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "rank_deltas_platform_id_platforms_id_fk": {
+          "name": "rank_deltas_platform_id_platforms_id_fk",
+          "tableFrom": "rank_deltas",
+          "tableTo": "platforms",
+          "columnsFrom": [
+            "platform_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "rank_deltas_streamer_id_streamers_id_fk": {
+          "name": "rank_deltas_streamer_id_streamers_id_fk",
+          "tableFrom": "rank_deltas",
+          "tableTo": "streamers",
+          "columnsFrom": [
+            "streamer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.removal_requests": {
+      "name": "removal_requests",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "streamer_id": {
+          "name": "streamer_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "platform_id": {
+          "name": "platform_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "alias": {
+          "name": "alias",
+          "type": "varchar(128)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "requester_email": {
+          "name": "requester_email",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reason": {
+          "name": "reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "request_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "requested_at": {
+          "name": "requested_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "resolved_at": {
+          "name": "resolved_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "removal_requests_status_idx": {
+          "name": "removal_requests_status_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "removal_requests_streamer_id_streamers_id_fk": {
+          "name": "removal_requests_streamer_id_streamers_id_fk",
+          "tableFrom": "removal_requests",
+          "tableTo": "streamers",
+          "columnsFrom": [
+            "streamer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "removal_requests_platform_id_platforms_id_fk": {
+          "name": "removal_requests_platform_id_platforms_id_fk",
+          "tableFrom": "removal_requests",
+          "tableTo": "platforms",
+          "columnsFrom": [
+            "platform_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.streamer_achievements": {
+      "name": "streamer_achievements",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "streamer_id": {
+          "name": "streamer_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "achievement_id": {
+          "name": "achievement_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "awarded_at": {
+          "name": "awarded_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "details": {
+          "name": "details",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "streamer_achievements_unique": {
+          "name": "streamer_achievements_unique",
+          "columns": [
+            {
+              "expression": "streamer_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "achievement_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "streamer_achievements_streamer_id_streamers_id_fk": {
+          "name": "streamer_achievements_streamer_id_streamers_id_fk",
+          "tableFrom": "streamer_achievements",
+          "tableTo": "streamers",
+          "columnsFrom": [
+            "streamer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "streamer_achievements_achievement_id_achievements_id_fk": {
+          "name": "streamer_achievements_achievement_id_achievements_id_fk",
+          "tableFrom": "streamer_achievements",
+          "tableTo": "achievements",
+          "columnsFrom": [
+            "achievement_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.streamer_aliases": {
+      "name": "streamer_aliases",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "streamer_id": {
+          "name": "streamer_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "platform_id": {
+          "name": "platform_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "alias": {
+          "name": "alias",
+          "type": "varchar(128)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "profile_url": {
+          "name": "profile_url",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_primary": {
+          "name": "is_primary",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "streamer_aliases_platform_alias_uq": {
+          "name": "streamer_aliases_platform_alias_uq",
+          "columns": [
+            {
+              "expression": "platform_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "alias",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "streamer_aliases_streamer_platform_idx": {
+          "name": "streamer_aliases_streamer_platform_idx",
+          "columns": [
+            {
+              "expression": "streamer_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "platform_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "streamer_aliases_streamer_id_streamers_id_fk": {
+          "name": "streamer_aliases_streamer_id_streamers_id_fk",
+          "tableFrom": "streamer_aliases",
+          "tableTo": "streamers",
+          "columnsFrom": [
+            "streamer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "streamer_aliases_platform_id_platforms_id_fk": {
+          "name": "streamer_aliases_platform_id_platforms_id_fk",
+          "tableFrom": "streamer_aliases",
+          "tableTo": "platforms",
+          "columnsFrom": [
+            "platform_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.streamers": {
+      "name": "streamers",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "display_name": {
+          "name": "display_name",
+          "type": "varchar(128)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_verified": {
+          "name": "is_verified",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "streamers_display_name_idx": {
+          "name": "streamers_display_name_idx",
+          "columns": [
+            {
+              "expression": "display_name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.verification_requests": {
+      "name": "verification_requests",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "streamer_id": {
+          "name": "streamer_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "platform_id": {
+          "name": "platform_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "alias": {
+          "name": "alias",
+          "type": "varchar(128)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "contact_email": {
+          "name": "contact_email",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "proof_url": {
+          "name": "proof_url",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "request_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "requested_at": {
+          "name": "requested_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "resolved_at": {
+          "name": "resolved_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "verification_requests_status_idx": {
+          "name": "verification_requests_status_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "verification_requests_streamer_id_streamers_id_fk": {
+          "name": "verification_requests_streamer_id_streamers_id_fk",
+          "tableFrom": "verification_requests",
+          "tableTo": "streamers",
+          "columnsFrom": [
+            "streamer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "verification_requests_platform_id_platforms_id_fk": {
+          "name": "verification_requests_platform_id_platforms_id_fk",
+          "tableFrom": "verification_requests",
+          "tableTo": "platforms",
+          "columnsFrom": [
+            "platform_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.request_status": {
+      "name": "request_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "approved",
+        "rejected"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
