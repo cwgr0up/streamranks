@@ -23,6 +23,12 @@ export async function GET(req: Request) {
 
 // POST /api/aliases  { streamerId, platformId, alias, profileUrl?, isPrimary? }
 export async function POST(req: Request) {
+  // 🔒 Simple header-based guard
+  const auth = req.headers.get('x-admin-secret');
+  if (auth !== process.env.ADMIN_API_SECRET) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const body = (await req.json()) as unknown;
     const b = body as Record<string, unknown>;
@@ -36,16 +42,18 @@ export async function POST(req: Request) {
     if (!streamerId || !platformId || !alias) {
       return NextResponse.json(
         { error: 'streamerId, platformId, and alias are required' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
+    // ensure FK rows exist
     const [s] = await db.select().from(streamers).where(eq(streamers.id, streamerId)).limit(1);
     if (!s) return NextResponse.json({ error: 'streamerId not found' }, { status: 404 });
 
     const [p] = await db.select().from(platforms).where(eq(platforms.id, platformId)).limit(1);
     if (!p) return NextResponse.json({ error: 'platformId not found' }, { status: 404 });
 
+    // unique per (platform, alias)
     const [dup] = await db
       .select()
       .from(streamerAliases)

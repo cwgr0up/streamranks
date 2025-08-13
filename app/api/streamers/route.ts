@@ -12,10 +12,15 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  // 🔒 Simple header-based guard
+  const auth = req.headers.get('x-admin-secret');
+  if (auth !== process.env.ADMIN_API_SECRET) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const body = (await req.json()) as unknown;
     const b = body as Record<string, unknown>;
-
     const displayName =
       typeof b['displayName'] === 'string' ? (b['displayName'] as string).trim() : '';
 
