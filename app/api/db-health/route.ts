@@ -25,10 +25,18 @@ export async function GET() {
       order by table_name
     `);
 
-    const okRow = toRows(okRes)[0] as { ok?: number } | undefined;
-    const tables = toRows(tablesRes).map((r) => String(r.table_name ?? r.tableName ?? Object.values(r)[0] ?? ''));
+    const okRow = toRows(okRes)[0];
+    const okNum = Number((okRow?.['ok'] as unknown) ?? 0);
 
-    return NextResponse.json({ ok: okRow?.ok === 1, tables });
+    const tables = toRows(tablesRes).map((r) => {
+      const v =
+        r['table_name'] ??
+        r['tableName'] ??
+        Object.values(r)[0];
+      return String(v ?? '');
+    });
+
+    return NextResponse.json({ ok: okNum === 1, tables });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
