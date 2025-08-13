@@ -1,7 +1,8 @@
 // app/api/db-health/route.ts
 import { NextResponse } from 'next/server';
-import { db } from '@/server/db';
+import { db } from '../../../src/server/db';              // ⬅️ relative path
 import { sql as dsql } from 'drizzle-orm';
+
 export const runtime = 'nodejs';
 
 export async function GET() {
