@@ -1,3 +1,4 @@
+// app/api/aliases/route.ts
 import { NextResponse } from 'next/server';
 import { db } from '../../../src/server/db';
 import { streamerAliases, platforms, streamers } from '../../../src/server/db/schema';
@@ -5,6 +6,7 @@ import { eq, and, asc } from 'drizzle-orm';
 
 export const runtime = 'nodejs';
 
+// GET /api/aliases?streamerId=123
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const sid = Number(searchParams.get('streamerId') ?? 0);
@@ -19,18 +21,23 @@ export async function GET(req: Request) {
   return NextResponse.json(rows);
 }
 
+// POST /api/aliases  { streamerId, platformId, alias, profileUrl?, isPrimary? }
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const body = (await req.json()) as unknown;
+    const b = body as Record<string, unknown>;
 
-    const streamerId = Number(body?.streamerId);
-    const platformId = Number(body?.platformId);
-    const alias = String(body?.alias ?? '').trim();
-    const profileUrl = body?.profileUrl ? String(body.profileUrl) : undefined;
-    const isPrimary = Boolean(body?.isPrimary ?? false);
+    const streamerId = Number(b.streamerId);
+    const platformId = Number(b.platformId);
+    const alias = typeof b.alias === 'string' ? (b.alias as string).trim() : '';
+    const profileUrl = typeof b.profileUrl === 'string' ? (b.profileUrl as string) : undefined;
+    const isPrimary = Boolean(b.isPrimary ?? false);
 
     if (!streamerId || !platformId || !alias) {
-      return NextResponse.json({ error: 'streamerId, platformId, and alias are required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'streamerId, platformId, and alias are required' },
+        { status: 400 },
+      );
     }
 
     const [s] = await db.select().from(streamers).where(eq(streamers.id, streamerId)).limit(1);
@@ -44,7 +51,9 @@ export async function POST(req: Request) {
       .from(streamerAliases)
       .where(and(eq(streamerAliases.platformId, platformId), eq(streamerAliases.alias, alias)))
       .limit(1);
-    if (dup) return NextResponse.json({ error: 'alias already exists on this platform' }, { status: 409 });
+    if (dup) {
+      return NextResponse.json({ error: 'alias already exists on this platform' }, { status: 409 });
+    }
 
     const [inserted] = await db
       .insert(streamerAliases)
@@ -52,7 +61,8 @@ export async function POST(req: Request) {
       .returning();
 
     return NextResponse.json(inserted, { status: 201 });
-  } catch (err: any) {
-    return NextResponse.json({ error: err?.message ?? 'Invalid request' }, { status: 400 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Invalid request';
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }

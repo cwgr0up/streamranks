@@ -1,3 +1,4 @@
+// app/api/streamers/route.ts
 import { NextResponse } from 'next/server';
 import { db } from '../../../src/server/db';
 import { streamers } from '../../../src/server/db/schema';
@@ -12,13 +13,23 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const displayName = String(body?.displayName ?? '').trim();
-    if (!displayName) return NextResponse.json({ error: 'displayName is required' }, { status: 400 });
+    const body = (await req.json()) as unknown;
+    const displayName = typeof (body as Record<string, unknown>)?.displayName === 'string'
+      ? ((body as Record<string, unknown>).displayName as string).trim()
+      : '';
 
-    const [inserted] = await db.insert(streamers).values({ displayName, isVerified: false }).returning();
+    if (!displayName) {
+      return NextResponse.json({ error: 'displayName is required' }, { status: 400 });
+    }
+
+    const [inserted] = await db
+      .insert(streamers)
+      .values({ displayName, isVerified: false })
+      .returning();
+
     return NextResponse.json(inserted, { status: 201 });
-  } catch (err: any) {
-    return NextResponse.json({ error: err?.message ?? 'Invalid request' }, { status: 400 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Invalid request';
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }

@@ -1,13 +1,23 @@
 // app/api/db-health/route.ts
 import { NextResponse } from 'next/server';
-import { db } from '../../../src/server/db';              // ⬅️ relative path
+import { db } from '../../../src/server/db';
 import { sql as dsql } from 'drizzle-orm';
 
 export const runtime = 'nodejs';
 
+type Row = Record<string, unknown>;
+const toRows = (r: unknown): Row[] => {
+  if (Array.isArray(r)) return r as Row[];
+  if (r && typeof r === 'object' && 'rows' in (r as Record<string, unknown>)) {
+    const rows = (r as { rows?: Row[] }).rows;
+    return Array.isArray(rows) ? rows : [];
+  }
+  return [];
+};
+
 export async function GET() {
   try {
-    const ok = await db.execute(dsql`select 1 as ok`);
+    const okRes = await db.execute(dsql`select 1 as ok`);
     const tablesRes = await db.execute(dsql`
       select table_name
       from information_schema.tables
@@ -15,12 +25,12 @@ export async function GET() {
       order by table_name
     `);
 
-    const rows = (r: any) => (Array.isArray(r) ? r : r?.rows ?? []);
-    const okRow = rows(ok)[0];
-    const tables = rows(tablesRes).map((r: any) => r.table_name ?? Object.values(r)[0]);
+    const okRow = toRows(okRes)[0] as { ok?: number } | undefined;
+    const tables = toRows(tablesRes).map((r) => String(r.table_name ?? r.tableName ?? Object.values(r)[0] ?? ''));
 
     return NextResponse.json({ ok: okRow?.ok === 1, tables });
-  } catch (e: any) {
-    return NextResponse.json({ ok: false, error: e?.message ?? String(e) }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }
