@@ -27,11 +27,11 @@ export async function POST(req: Request) {
     const body = (await req.json()) as unknown;
     const b = body as Record<string, unknown>;
 
-    const streamerId = Number(b.streamerId);
-    const platformId = Number(b.platformId);
-    const alias = typeof b.alias === 'string' ? (b.alias as string).trim() : '';
-    const profileUrl = typeof b.profileUrl === 'string' ? (b.profileUrl as string) : undefined;
-    const isPrimary = Boolean(b.isPrimary ?? false);
+    const streamerId = Number(b['streamerId']);
+    const platformId = Number(b['platformId']);
+    const alias = typeof b['alias'] === 'string' ? (b['alias'] as string).trim() : '';
+    const profileUrl = typeof b['profileUrl'] === 'string' ? (b['profileUrl'] as string) : undefined;
+    const isPrimary = Boolean(b['isPrimary'] ?? false);
 
     if (!streamerId || !platformId || !alias) {
       return NextResponse.json(
