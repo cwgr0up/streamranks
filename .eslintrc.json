@@ -1,0 +1,9 @@
+{
+  "extends": ["next/core-web-vitals"],
+  "overrides": [
+    {
+      "files": ["app/api/**/*.ts", "pages/api/**/*.ts"],
+      "rules": { "@typescript-eslint/no-explicit-any": "off" }
+    }
+  ]
+}

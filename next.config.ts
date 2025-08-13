@@ -1,13 +1,8 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  eslint: {
-    // TEMP: don’t fail the Vercel build on lint errors
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    // TEMP: don’t fail the Vercel build on TS type errors
-    ignoreBuildErrors: true,
-  },
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
+  eslint: { ignoreDuringBuilds: false },
+  typescript: { ignoreBuildErrors: false },
 };
 
-module.exports = nextConfig;
+export default nextConfig;
