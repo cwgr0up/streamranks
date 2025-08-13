@@ -8,6 +8,12 @@ export const runtime = 'nodejs';
 
 // GET /api/aliases?streamerId=123
 export async function GET(req: Request) {
+  // 🔒 guard GET with x-admin-secret
+  const auth = req.headers.get('x-admin-secret');
+  if (auth !== process.env.ADMIN_API_SECRET) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { searchParams } = new URL(req.url);
   const sid = Number(searchParams.get('streamerId') ?? 0);
   if (!sid) return NextResponse.json({ error: 'Provide streamerId' }, { status: 400 });
@@ -23,7 +29,7 @@ export async function GET(req: Request) {
 
 // POST /api/aliases  { streamerId, platformId, alias, profileUrl?, isPrimary? }
 export async function POST(req: Request) {
-  // 🔒 Simple header-based guard
+  // 🔒 guard POST with x-admin-secret
   const auth = req.headers.get('x-admin-secret');
   if (auth !== process.env.ADMIN_API_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

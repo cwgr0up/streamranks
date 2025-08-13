@@ -15,7 +15,13 @@ const toRows = (r: unknown): Row[] => {
   return [];
 };
 
-export async function GET() {
+export async function GET(req: Request) {
+  // 🔒 guard GET with x-admin-secret
+  const auth = req.headers.get('x-admin-secret');
+  if (auth !== process.env.ADMIN_API_SECRET) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const okRes = await db.execute(dsql`select 1 as ok`);
     const tablesRes = await db.execute(dsql`
@@ -29,10 +35,7 @@ export async function GET() {
     const okNum = Number((okRow?.['ok'] as unknown) ?? 0);
 
     const tables = toRows(tablesRes).map((r) => {
-      const v =
-        r['table_name'] ??
-        r['tableName'] ??
-        Object.values(r)[0];
+      const v = r['table_name'] ?? r['tableName'] ?? Object.values(r)[0];
       return String(v ?? '');
     });
 

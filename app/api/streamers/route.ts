@@ -6,13 +6,19 @@ import { asc } from 'drizzle-orm';
 
 export const runtime = 'nodejs';
 
-export async function GET() {
+export async function GET(req: Request) {
+  // 🔒 guard GET with x-admin-secret
+  const auth = req.headers.get('x-admin-secret');
+  if (auth !== process.env.ADMIN_API_SECRET) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const rows = await db.select().from(streamers).orderBy(asc(streamers.id)).limit(100);
   return NextResponse.json(rows);
 }
 
 export async function POST(req: Request) {
-  // 🔒 Simple header-based guard
+  // 🔒 guard POST with x-admin-secret
   const auth = req.headers.get('x-admin-secret');
   if (auth !== process.env.ADMIN_API_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
