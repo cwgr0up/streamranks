@@ -14,9 +14,10 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = (await req.json()) as unknown;
-    const displayName = typeof (body as Record<string, unknown>)?.displayName === 'string'
-      ? ((body as Record<string, unknown>).displayName as string).trim()
-      : '';
+    const b = body as Record<string, unknown>;
+
+    const displayName =
+      typeof b['displayName'] === 'string' ? (b['displayName'] as string).trim() : '';
 
     if (!displayName) {
       return NextResponse.json({ error: 'displayName is required' }, { status: 400 });
