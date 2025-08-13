@@ -1,0 +1,1 @@
+-- baseline noop; initializes _drizzle_migrations
