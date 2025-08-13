@@ -1,19 +1,22 @@
 // drizzle.config.ts
 import * as dotenv from 'dotenv';
-
-// Try .env.local first (dev), then also load .env as a fallback
-dotenv.config({ path: '.env.local' });
-dotenv.config();
+dotenv.config({ path: '.env.local' }); // dev-first
+dotenv.config(); // fallback to .env
 
 import { defineConfig } from 'drizzle-kit';
+
+const env = process.env as Record<string, string | undefined>;
+const url = env['DRIZZLE_DATABASE_URL'] ?? env['DATABASE_URL'];
+
+if (!url) {
+  throw new Error('DRIZZLE_DATABASE_URL / DATABASE_URL is not set');
+}
 
 export default defineConfig({
   dialect: 'postgresql',
   out: './drizzle',
   schema: './src/server/db/schema.ts',
-  dbCredentials: {
-    url: process.env.DRIZZLE_DATABASE_URL ?? process.env.DATABASE_URL!,
-  },
+  dbCredentials: { url },
   verbose: true,
   strict: true,
 });
